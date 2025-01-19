@@ -1,0 +1,42 @@
+-- Highlight all players script
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+-- Function to create a Highlight instance for a character
+local function addHighlight(character)
+    if not character:FindFirstChild("Highlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.Adornee = character
+        highlight.Parent = character
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        highlight.FillColor = Color3.new(1, 1, 1) -- White color
+        highlight.OutlineColor = Color3.new(0, 0, 0) -- Black outline
+    end
+end
+
+-- Monitor existing players
+for _, player in pairs(Players:GetPlayers()) do
+    if player.Character then
+        addHighlight(player.Character)
+    end
+
+    player.CharacterAdded:Connect(function(character)
+        addHighlight(character)
+    end)
+end
+
+-- Listen for new players joining
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        addHighlight(character)
+    end)
+end)
+
+-- Keep updating highlights for moving characters
+RunService.RenderStepped:Connect(function()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Character and player.Character:FindFirstChild("Highlight") then
+            player.Character.Highlight.Adornee = player.Character
+        end
+    end
+end)
